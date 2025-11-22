@@ -1,0 +1,80 @@
+ontrolplane:~$ expr 1912960
+1912960
+controlplane:~$ expr 1912960 / 1024
+1868
+controlplane:~$ expr 1868 - 100
+1768
+controlplane:~$ expr "1768 * 0.10" | bc
+176.80
+controlplane:~$ expr 1768 - 176
+1592
+controlplane:~$ expr 1592 / 3
+530
+
+Memory 500Mi for each pod
+Overhead 10%= 176
+limit for memory of pod 600Mi
+
+CPU
+@@@@@@@
+
+controlplane:~$ expr 1000 - 125 
+875
+controlplane:~$ expr "875 * 0.10" | bc
+87.50
+controlplane:~$ expr 875 - 87
+788
+controlplane:~$ expr 788 / 3
+262
+controlplane:~$
+
+cpu 250m for each pod
+Overhead 10%= 87 
+limit for cpu of pod 300m
+
+wordpress deployment
+####################
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress
+  namespace: default
+  labels:
+    app: wordpress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wordpress
+  template:
+    metadata:
+      labels:
+        app: wordpress
+    spec:
+      containers:
+      - name: logger
+        image: wordpress:latest
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            while true; do
+              echo "Log entry: $(date)" >> /var/log/wordpress.log;
+              sleep 5;
+            done
+        volumeMounts:
+        - name: log-volume
+          mountPath: /var/log
+
+      - name: sidecar
+        image: busybox:stable
+        command: ["/bin/sh", "-c"]
+        args:
+          - tail -n+1 -f /var/log/wordpress.log
+        volumeMounts:
+        - name: log-volume
+          mountPath: /var/log
+
+      volumes:
+      - name: log-volume
+        emptyDir: {}
