@@ -1,0 +1,34 @@
+systemctl status podman
+systemctl enable --now podman
+ssh devuser1@localhost
+
+[devuser1@hosta ~]$ podman login
+Username: alaminss
+Password:
+Error: error logging into "docker.io": invalid username/password
+[devuser1@hosta ~]$ podman login registry.redhat.io
+Username: alaminss
+Password:
+Login Succeeded!
+[devuser1@hosta ~]$ podman search httpd
+[devuser1@hosta ~]$ podman pull docker.io/library/httpd
+[devuser1@hosta ~]$ podman ps
+[devuser1@hosta ~]$ podman stop loving_visvesvaraya
+WARN[0010] StopSignal SIGWINCH failed to stop container loving_visvesvaraya in 10 seconds, resorting to SIGKILL
+loving_visvesvaraya
+[devuser1@hosta ~]$ podman run -it docker.io/library/httpd:latest /bin/bash
+root@877602d9bd6c:/usr/local/apache2# pwd
+/usr/local/apache2
+root@877602d9bd6c:/usr/local/apache2# find -name index.html
+./htdocs/index.html
+root@877602d9bd6c:/usr/local/apache2# exit
+
+
+ podman run -dit --name web1 -p 8080:80 --security-opt label=disable -v /web:/usr/local/apache2/htdocs
+
+
+[root@hosta ~]# cat program2
+#!/bin/bash
+mkdir /root/ex222
+find /usr -type f -size +30k -size -50k -perm -4000 -exec cp -frvp {} /root/ex222/ \;
+[root@hosta ~]#
